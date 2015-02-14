@@ -80,8 +80,6 @@ sbin/stop-dfs.sh
 
 ## Tips / Common Errors
 
-### A few consolidated tips/fixes for common problems:
-
 Hostname of namenode GUI: `<docker instance ip>:50070` (default)
  
 Most important config files are in: `/usr/local/hadoop/etc/hadoop`
