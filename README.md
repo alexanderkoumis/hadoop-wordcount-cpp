@@ -51,8 +51,6 @@ Start the Hadoop filesystem, create a user directory for root, and copy the Word
 ```bash
 bin/hdfs namenode -format
 sbin/start-dfs.sh
-bin/hdfs dfs -mkdir /user
-bin/hdfs dfs -mkdir /user/root
 bin/hdfs dfs -put wordcount input
 ```
 
@@ -61,9 +59,9 @@ Finally run WordCount on the supplied 2015 State of the Union address:
 ```bash
 bin/mapred pipes -D hadoop.pipes.java.recordreader=true \
                  -D hadoop.pipes.java.recordwriter=true \
-                 -input wordcount/sotu_2015.txt         \
+                 -input input/wordcount/sotu_2015.txt   \
                  -output output                         \
-                 -program wordcount/wordcount
+                 -program input/wordcount/wordcount
 ```
 
 To see the results:
