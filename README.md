@@ -9,11 +9,22 @@ This project contains information regarding compiling the C++ WordCount implemen
 
 The most trivial way to get Hadoop up and running is to start a Docker container with Apache's Hadoop 2.6.0 Docker image, based on Ubuntu 14.04. These instructions assume your development machine is also running Ubuntu 14.04. Skip to the next section if your Hadoop is already set up, or you would like to configure it manually.
 
-First [install Docker][docker_link] for your respective platform. Then, pull and run the docker-hadoop-ubuntu image:
+First [install Docker][docker_link] for your respective platform.
+
+Ensure the current user is part of the docker group in order to run docker commands without sudo:
 
 ```bash
-sudo docker pull sequenceiq/hadoop-ubuntu:2.6.0
-sudo docker run -i -t sequenceiq/hadoop-ubuntu:2.6.0 /etc/bootstrap.sh -bash
+sudo groupadd docker
+sudo gpasswd -a ${USER} docker
+sudo service docker restart
+sudo reboot -f now
+```
+
+Then, pull and run the docker-hadoop-ubuntu image:
+
+```bash
+docker pull sequenceiq/hadoop-ubuntu:2.6.0
+docker run -i -t sequenceiq/hadoop-ubuntu:2.6.0 /etc/bootstrap.sh -bash
 ```
 
 Your shell should now be at a root prompt from within the Docker image, pre-loaded with Hadoop.
@@ -22,26 +33,19 @@ Your shell should now be at a root prompt from within the Docker image, pre-load
 
 ## Compile WordCount
 
-Update the Docker instance and install libssl-dev:
+Update the instance's repos and install libssl-dev and git:
 
 ```bash
-sudo apt-get update
-sudo apt-get install libssl-dev
+apt-get update && apt-get install libssl-dev git -y
 ```
 
-Clone this project onto your filesystem (or copy its contents into $HADOOP_PREFIX/wordcount):
+Clone this project into $HADOOP_PREFIX and build:
 
 ```bash
-sudo apt-get install git
 cd $HADOOP_PREFIX
 git clone https://github.com/alexanderkoumis/hadoop-wordcount-cpp wordcount
-```
-
-Compile the binary:
-
-```bash
 cd wordcount
-make
+make -j4
 ```
 
 ## Initialize Hadoop, Run WordCount
@@ -49,10 +53,13 @@ make
 Start the Hadoop filesystem, create a user directory for root, and copy the WordCount binary into the dfs:
 
 ```bash
+cd $HADOOP_PREFIX
 bin/hdfs namenode -format
 sbin/start-dfs.sh
 bin/hdfs dfs -put wordcount input
 ```
+
+(Note: It is assumed the rest of the supplied commands are executed from working directory $HADOOP_PREFIX)
 
 Finally run WordCount on the supplied 2015 State of the Union address:
 
